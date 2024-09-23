@@ -1,8 +1,8 @@
 # Ignorar todos los archivos .o (archivos objeto)
-./src/*.o
+*.o
 
 # Ignorar el archivo ejecutable 'steren_manager'
-./steren_manager
+steren_manager
 
 # Ignorar cualquier archivo de texto de prueba o de datos (opcional)
 data.txt

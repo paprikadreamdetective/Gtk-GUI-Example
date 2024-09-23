@@ -10,21 +10,28 @@
 #include "../include/memoria_compartida.h"
 #include "../include/list.h"
 
-void cargar_memoria_compartida(LIST *list) {
+void cargar_memoria_compartida(LIST *list, GtkWidget *label_resultado) {
     int shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
+	gtk_label_set_text(GTK_LABEL(label_resultado), "Error abriendo la memoria compartida");
         perror("Error abriendo la memoria compartida");
         exit(1);
     }
 
     size_t size = MAX_PRODUCTOS * sizeof(PRODUCTO);
     if (ftruncate(shm_fd, size) == -1) {
-        perror("Error al truncar la memoria compartida");
+        
+       gtk_label_set_text(GTK_LABEL(label_resultado), "Error truncando la memoria compartida.");
+        close(shm_fd);
+	perror("Error al truncar la memoria compartida");
         exit(1);
     }
 
     PRODUCTO *productos = (PRODUCTO *)mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (productos == MAP_FAILED) {
+
+	gtk_label_set_text(GTK_LABEL(label_resultado), "Error mapeando la memoria compartida.");
+
         perror("Error al mapear la memoria compartida");
         exit(1);
     }
@@ -47,6 +54,8 @@ void cargar_memoria_compartida(LIST *list) {
         current_product = current_product->next;
         i++;
     }
+	
+    gtk_label_set_text(GTK_LABEL(label_resultado), "Memoria compartida cargada correctamente.");
 
     if (munmap(productos, size) == -1) {
         perror("Error al desmapear la memoria compartida");
@@ -56,9 +65,12 @@ void cargar_memoria_compartida(LIST *list) {
     close(shm_fd);
 }
 
-void leer_memoria_compartida(GtkWidget *widget, gpointer window) {
+void leer_memoria_compartida(GtkWidget *widget, gpointer label_resultado) {
     int shm_fd = shm_open(SHM_NAME, O_RDONLY, 0666);
     if (shm_fd == -1) {
+
+        gtk_label_set_text(GTK_LABEL(label_resultado), "Error abriendo la memoria compartida.");
+	
         perror("Error abriendo la memoria compartida");
         exit(1);
     }
@@ -70,12 +82,12 @@ void leer_memoria_compartida(GtkWidget *widget, gpointer window) {
         exit(1);
     }
 
-    GtkWidget *dialog;
+    /*GtkWidget *dialog;
     dialog = gtk_message_dialog_new(GTK_WINDOW(window),
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_INFO,
                                     GTK_BUTTONS_OK,
-                                    "Productos en memoria compartida:");
+                                    "Productos en memoria compartida:");*/
 
     char buffer[2048] = "|  ID   |         Nombre          |    Categoría    |  Precio  | Stock |    Código de Barras    |\n";
     strcat(buffer, "-----------------------------------------------------------------------------------------------\n");
@@ -88,9 +100,10 @@ void leer_memoria_compartida(GtkWidget *widget, gpointer window) {
         strcat(buffer, temp);
     }
 
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", buffer);
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
+	gtk_label_set_text(GTK_LABEL(label_resultado), buffer);
+    //gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", buffer);
+    //gtk_dialog_run(GTK_DIALOG(dialog));
+    //gtk_widget_destroy(dialog);
 
     if (munmap(productos, size) == -1) {
         perror("Error al desmapear la memoria compartida");
@@ -101,9 +114,9 @@ void leer_memoria_compartida(GtkWidget *widget, gpointer window) {
 }
 
 
-void event_clicked_cargar_memoria_compartida(GtkWidget *widget, gpointer window) {
+void event_clicked_cargar_memoria_compartida(GtkWidget *widget, gpointer label_resultado) {
     LIST *productos = lista_productos();
-    cargar_memoria_compartida(productos);
+    cargar_memoria_compartida(productos, GTK_WIDGET(label_resultado));
 }
 
 

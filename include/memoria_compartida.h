@@ -16,8 +16,8 @@ typedef struct {
     pthread_mutex_t mutex;
 } PRODUCTO;
 
-void cargar_memoria_compartida(LIST *list);
-void leer_memoria_compartida(GtkWidget *widget, gpointer window);
+void cargar_memoria_compartida(LIST *list, GtkWidget *label_resultado);
+void leer_memoria_compartida(GtkWidget *widget, gpointer label_resultado);
 void event_clicked_cargar_memoria_compartida(GtkWidget *widget, gpointer window);
 
 

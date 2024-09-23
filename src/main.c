@@ -6,7 +6,6 @@ int main(int argc, char *argv[]) {
     GtkWidget *button;
     GtkWidget *vbox;
     GtkWidget *label;
-    GtkStyleContext *context;
     
     gtk_init(&argc, &argv);
 

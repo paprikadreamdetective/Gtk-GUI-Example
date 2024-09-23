@@ -75,7 +75,7 @@ void confirmar_compra(GtkWidget *widget, gpointer entry) {
 
 void mostrar_productos(GtkWidget *widget, gpointer vbox_derecha) {
     GtkWidget *grid;
-    GtkWidget *label_id, *label_nombre, *label_stock, *entry_id, *button_ok;
+    GtkWidget *label_id, *label_nombre, *label_categoria, *label_precio, *label_stock, *label_codigo, *entry_id, *button_ok;
 
     // Limpiar el contenido anterior en la parte derecha (vbox_derecha)
     GList *children, *iter;
@@ -115,22 +115,36 @@ void mostrar_productos(GtkWidget *widget, gpointer vbox_derecha) {
     // Crear las cabeceras de la tabla
     label_id = gtk_label_new("ID");
     label_nombre = gtk_label_new("Producto");
+    label_categoria = gtk_label_new("Categoria");
+    label_precio = gtk_label_new("Precio");
     label_stock = gtk_label_new("Stock");
+    label_codigo = gtk_label_new("Codigo de barras");
+    
     gtk_grid_attach(GTK_GRID(grid), label_id, 0, 0, 1, 1);      // Columna 0, Fila 0
     gtk_grid_attach(GTK_GRID(grid), label_nombre, 1, 0, 1, 1);  // Columna 1, Fila 0
-    gtk_grid_attach(GTK_GRID(grid), label_stock, 2, 0, 1, 1);   // Columna 2, Fila 0
+    gtk_grid_attach(GTK_GRID(grid), label_categoria, 2, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), label_precio, 3, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), label_stock, 4, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), label_codigo, 5, 0, 1, 1);
+
 
     // Mostrar productos disponibles en la cuadrícula
     for (int i = 0; i < MAX_PRODUCTOS && productos[i].id != 0; i++) {
         // Crear etiquetas para cada columna
         label_id = gtk_label_new(g_strdup_printf("%d", productos[i].id));
         label_nombre = gtk_label_new(productos[i].nombre);
+        label_categoria = gtk_label_new(productos[i].categoria);
+        label_precio = gtk_label_new(g_strdup_printf("%f", productos[i].precio));
         label_stock = gtk_label_new(g_strdup_printf("%d", productos[i].cantidad_stock));
+        label_codigo = gtk_label_new(productos[i].codigo_barras);
 
         // Añadir las etiquetas a la grid (i+1 porque la fila 0 está ocupada por las cabeceras)
         gtk_grid_attach(GTK_GRID(grid), label_id, 0, i + 1, 1, 1);
         gtk_grid_attach(GTK_GRID(grid), label_nombre, 1, i + 1, 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), label_stock, 2, i + 1, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), label_categoria, 2, i + 1, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), label_precio, 3, i + 1, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), label_stock, 4, i + 1, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), label_codigo, 5, i + 1, 1, 1);
     }
 
     // Campo para ingresar ID y botón de confirmación, debajo de la lista de productos

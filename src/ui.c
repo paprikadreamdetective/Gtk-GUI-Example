@@ -71,7 +71,7 @@ void iniciar_aplicacion(GtkWidget *widget, gpointer data) {
     button_leer = gtk_button_new_with_label("Visualizar Productos");
     g_object_set_data(G_OBJECT(button_leer), "page_name", "vista_visualizar");
     g_signal_connect(button_leer, "clicked", G_CALLBACK(mostrar_vista), stack);
-    g_signal_connect(button_leer, "clicked", G_CALLBACK(leer_memoria_compartida), label_resultado2);
+    g_signal_connect(button_leer, "clicked", G_CALLBACK(leer_memoria_compartida), vbox2);
     gtk_box_pack_start(GTK_BOX(vbox_left), button_leer, TRUE, TRUE, 0);
 
     // Botón Compra de Productos

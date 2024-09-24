@@ -102,5 +102,21 @@ void cargar_memoria_compartida(LIST *list, GtkWidget *label_resultado) {
 ```
 
 Esta función cargar_memoria_compartida tiene como objetivo cargar los registros de una lista a un espacio de memoria compartida, para que puedan ser accedidos por otros procesos de forma concurrente. La función también inicializa un mutex para cada producto, garantizando que solo un proceso a la vez pueda modificar los datos de un producto específico.
+Estructura PRODUCTO:
+```c
+#define SHM_NAME "/product_shm"
+#define MAX_PRODUCTOS 100
+
+typedef struct {
+    int id;
+    char nombre[50];
+    char categoria[50];
+    float precio;
+    int cantidad_stock;
+    char codigo_barras[50];
+    pthread_mutex_t mutex;
+} PRODUCTO;
+
+```
 
 

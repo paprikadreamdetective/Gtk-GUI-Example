@@ -88,14 +88,14 @@ Asocia la memoria compartida con el espacio de direcciones del proceso para pode
 PROT_READ | PROT_WRITE 
 
 ```
-y que la memoria es compartida entre procesos (```c MAP_SHARED ```).
+y que la memoria es compartida entre procesos (``` MAP_SHARED ```).
 
 Si mmap falla, se informa del error y se detiene la ejecución del programa.
 Copia de los datos de la lista a la memoria compartida
 
-El código recorre la lista (```c LIST ```) y copia cada registro de producto en la memoria compartida. Los campos como id, nombre, categoría, precio, cantidad_stock, y codigo_barras se copian de cada nodo de la lista a la memoria.
-El índice i se asegura de no sobrescribir más de ```c MAX_PRODUCTOS ``` productos en la memoria.
+El código recorre la lista (``` LIST ```) y copia cada registro de producto en la memoria compartida. Los campos como id, nombre, categoría, precio, cantidad_stock, y codigo_barras se copian de cada nodo de la lista a la memoria.
+El índice i se asegura de no sobrescribir más de ``` MAX_PRODUCTOS ``` productos en la memoria.
 Inicialización de Mutex para cada producto
 
-Para evitar problemas de concurrencia (que varios procesos intenten modificar los datos al mismo tiempo), cada estructura de tipo ```c PRODUCTO``` tiene un mutex inicializado con ```C pthread_mutex_init ```. Esto permite que, durante la ejecución de una operación sobre un producto, el acceso esté bloqueado para otros procesos hasta que el mutex se libere.
+Para evitar problemas de concurrencia (que varios procesos intenten modificar los datos al mismo tiempo), cada estructura de tipo ``` PRODUCTO``` tiene un mutex inicializado con ``` pthread_mutex_init ```. Esto permite que, durante la ejecución de una operación sobre un producto, el acceso esté bloqueado para otros procesos hasta que el mutex se libere.
 

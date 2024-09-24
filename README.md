@@ -45,57 +45,62 @@ Esta funcion retorna una estructura de tipo ```c LIST ``` que contiene los regis
 ## 1.2. Cargar lo registros a la memoria compartida.
 Funcion para cargar registros a la memoria compartida:
 ```c
-void cargar_memoria_compartida(LIST *list, GtkWidget *label_resultado);
+void cargar_memoria_compartida(LIST *list, GtkWidget *label_resultado) {
+    int shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
+    if (shm_fd == -1) {
+	gtk_label_set_text(GTK_LABEL(label_resultado), "Error abriendo la memoria compartida");
+        perror("Error abriendo la memoria compartida");
+        exit(1);
+    }
+
+    size_t size = MAX_PRODUCTOS * sizeof(PRODUCTO);
+    if (ftruncate(shm_fd, size) == -1) {
+        
+       gtk_label_set_text(GTK_LABEL(label_resultado), "Error truncando la memoria compartida.");
+        close(shm_fd);
+	perror("Error al truncar la memoria compartida");
+        exit(1);
+    }
+
+    PRODUCTO *productos = (PRODUCTO *)mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (productos == MAP_FAILED) {
+
+	gtk_label_set_text(GTK_LABEL(label_resultado), "Error mapeando la memoria compartida.");
+
+        perror("Error al mapear la memoria compartida");
+        exit(1);
+    }
+
+    NODE *current_product = list->head;
+    int i = 0;
+    while (current_product != NULL && i < MAX_PRODUCTOS) {
+        productos[i].id = current_product->data.id;
+        strncpy(productos[i].nombre, current_product->data.nombre, sizeof(productos[i].nombre));
+        strncpy(productos[i].categoria, current_product->data.categoria, sizeof(productos[i].categoria));
+        productos[i].precio = current_product->data.precio;
+        productos[i].cantidad_stock = current_product->data.cantidad_stock;
+        strncpy(productos[i].codigo_barras, current_product->data.codigo_barras, sizeof(productos[i].codigo_barras));
+
+        if (pthread_mutex_init(&productos[i].mutex, NULL) != 0) {
+                perror("Error inicializando mutex");
+                exit(1);
+        }
+
+        current_product = current_product->next;
+        i++;
+    }
+	
+    gtk_label_set_text(GTK_LABEL(label_resultado), "Memoria compartida cargada correctamente.");
+
+    if (munmap(productos, size) == -1) {
+        perror("Error al desmapear la memoria compartida");
+        exit(1);
+    }
+
+    close(shm_fd);
+}
 ```
 
-Esta función cargar_memoria_compartida tiene como objetivo cargar los registros de una lista ```c LIST ``` a un espacio de memoria compartida, para que puedan ser accedidos por otros procesos de forma concurrente. La función también inicializa un mutex para cada producto, garantizando que solo un proceso a la vez pueda modificar los datos de un producto específico.
+Esta función cargar_memoria_compartida tiene como objetivo cargar los registros de una lista a un espacio de memoria compartida, para que puedan ser accedidos por otros procesos de forma concurrente. La función también inicializa un mutex para cada producto, garantizando que solo un proceso a la vez pueda modificar los datos de un producto específico.
 
-Descripción General de la Función
-Parámetros
-```c 
-LIST *list
-```
-: Es la lista que contiene los productos a cargar en la memoria compartida. Cada nodo de la lista (NODE) contiene la información de un producto.
-GtkWidget *label_resultado: Un widget de GTK usado para mostrar mensajes de éxito o error en la interfaz gráfica.
-Estructura del Código
-Apertura de la memoria compartida (shm_open)
-
-```c 
-shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
-```
-Abre un espacio de memoria compartida con el nombre definido por SHM_NAME. Si no existe, lo crea con permisos de lectura y escritura.
-Si shm_open falla, se muestra un mensaje de error y se aborta el programa.
-Esta memoria compartida es accesible por otros procesos que conozcan su nombre.
-Ajuste del tamaño de la memoria (ftruncate)
-
-```c 
-ftruncate(shm_fd, size);
-```
-Cambia el tamaño del objeto de memoria compartida al tamaño requerido por: 
-```c 
-MAX_PRODUCTOS * sizeof(PRODUCTO)
-```
-Esto asegura que haya suficiente espacio para almacenar todos los productos.
-Si ftruncate falla, se notifica al usuario y se cierra el descriptor de archivo.
-Mapeo de la memoria compartida al espacio de direcciones del proceso (mmap)
-
-```c 
-mmap
-```
-Asocia la memoria compartida con el espacio de direcciones del proceso para poder leer y escribir en ella. Se especifica que se necesita tanto permiso de lectura como de escritura con: 
-```c 
-
-PROT_READ | PROT_WRITE 
-
-```
-y que la memoria es compartida entre procesos (``` MAP_SHARED ```).
-
-Si mmap falla, se informa del error y se detiene la ejecución del programa.
-Copia de los datos de la lista a la memoria compartida
-
-El código recorre la lista (``` LIST ```) y copia cada registro de producto en la memoria compartida. Los campos como id, nombre, categoría, precio, cantidad_stock, y codigo_barras se copian de cada nodo de la lista a la memoria.
-El índice i se asegura de no sobrescribir más de ``` MAX_PRODUCTOS ``` productos en la memoria.
-Inicialización de Mutex para cada producto
-
-Para evitar problemas de concurrencia (que varios procesos intenten modificar los datos al mismo tiempo), cada estructura de tipo ``` PRODUCTO``` tiene un mutex inicializado con ``` pthread_mutex_init ```. Esto permite que, durante la ejecución de una operación sobre un producto, el acceso esté bloqueado para otros procesos hasta que el mutex se libere.
 

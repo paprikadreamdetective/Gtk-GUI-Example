@@ -303,4 +303,6 @@ Si no se encuentra un producto con el ID ingresado, se muestra un mensaje emerge
 Liberación de Recursos:
 
 Al finalizar, la memoria compartida se desmapea y el descriptor de archivo asociado se cierra.
+## 3. Resultados de implementacion.
+
 

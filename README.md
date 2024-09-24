@@ -305,4 +305,6 @@ Liberación de Recursos:
 Al finalizar, la memoria compartida se desmapea y el descriptor de archivo asociado se cierra.
 ## 3. Resultados de implementacion.
 
+## 3.1. Interfaz principal:
+![image](https://github.com/user-attachments/assets/41baea05-8b3d-4b10-a485-7ddec9a6ecbc)
 

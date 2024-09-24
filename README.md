@@ -52,21 +52,44 @@ Esta función cargar_memoria_compartida tiene como objetivo cargar los registros
 
 Descripción General de la Función
 Parámetros
-```c LIST *list ```: Es la lista que contiene los productos a cargar en la memoria compartida. Cada nodo de la lista (NODE) contiene la información de un producto.
+```c 
+LIST *list
+```
+: Es la lista que contiene los productos a cargar en la memoria compartida. Cada nodo de la lista (NODE) contiene la información de un producto.
 GtkWidget *label_resultado: Un widget de GTK usado para mostrar mensajes de éxito o error en la interfaz gráfica.
 Estructura del Código
 Apertura de la memoria compartida (shm_open)
 
-```c shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);```: Abre un espacio de memoria compartida con el nombre definido por SHM_NAME. Si no existe, lo crea con permisos de lectura y escritura.
+```c 
+shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
+```
+Abre un espacio de memoria compartida con el nombre definido por SHM_NAME. Si no existe, lo crea con permisos de lectura y escritura.
 Si shm_open falla, se muestra un mensaje de error y se aborta el programa.
 Esta memoria compartida es accesible por otros procesos que conozcan su nombre.
 Ajuste del tamaño de la memoria (ftruncate)
 
-```c ftruncate(shm_fd, size);```: Cambia el tamaño del objeto de memoria compartida al tamaño requerido por ```c MAX_PRODUCTOS * sizeof(PRODUCTO)```. Esto asegura que haya suficiente espacio para almacenar todos los productos.
+```c 
+ftruncate(shm_fd, size);
+```
+Cambia el tamaño del objeto de memoria compartida al tamaño requerido por: 
+```c 
+MAX_PRODUCTOS * sizeof(PRODUCTO)
+```
+Esto asegura que haya suficiente espacio para almacenar todos los productos.
 Si ftruncate falla, se notifica al usuario y se cierra el descriptor de archivo.
 Mapeo de la memoria compartida al espacio de direcciones del proceso (mmap)
 
-```c mmap ```: Asocia la memoria compartida con el espacio de direcciones del proceso para poder leer y escribir en ella. Se especifica que se necesita tanto permiso de lectura como de escritura (con ```c PROT_READ | PROT_WRITE ```) y que la memoria es compartida entre procesos (```c MAP_SHARED ```).
+```c 
+mmap
+```
+Asocia la memoria compartida con el espacio de direcciones del proceso para poder leer y escribir en ella. Se especifica que se necesita tanto permiso de lectura como de escritura con: 
+```c 
+
+PROT_READ | PROT_WRITE 
+
+```
+y que la memoria es compartida entre procesos (```c MAP_SHARED ```).
+
 Si mmap falla, se informa del error y se detiene la ejecución del programa.
 Copia de los datos de la lista a la memoria compartida
 
